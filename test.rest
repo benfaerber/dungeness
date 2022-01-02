@@ -14,3 +14,17 @@ content-type: application/plain
 ###
 
 GET http://localhost:5050/add?a=1&b=4
+
+###
+
+GET http://localhost:5050/any-test
+
+##
+
+###
+POST http://localhost:5050/any-test HTTP/1.1
+content-type: application/plain
+
+horse radish
+
+###

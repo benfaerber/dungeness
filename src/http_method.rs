@@ -10,7 +10,8 @@ pub enum HttpMethod {
   CONNECT,
   OPTIONS,
   TRACE,
-  PATCH
+  PATCH,
+  ANY
 }
 
 impl HttpMethod {
@@ -25,6 +26,7 @@ impl HttpMethod {
       HttpMethod::OPTIONS => "OPTIONS",
       HttpMethod::TRACE => "TRACE",
       HttpMethod::PATCH => "PATCH",
+      HttpMethod::ANY => "ANY"
     }.to_string()
   }
 
@@ -39,6 +41,7 @@ impl HttpMethod {
       "OPTIONS" => HttpMethod::OPTIONS,
       "TRACE" => HttpMethod::TRACE,
       "PATCH" => HttpMethod::PATCH,
+      "ANY" => HttpMethod::ANY,
       _ => HttpMethod::GET
     }
   }

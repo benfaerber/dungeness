@@ -48,6 +48,11 @@ fn main() -> Result<()> {
         app::post("post-test", |req| {
             let res_text = format!("You sent this data using post: {:?}", req.body);
             app::res::status(200).text(res_text)
+        }),
+
+        app::any("any-test", |req| {
+            let text = format!("You sent a request to 'any-test' using method {}.\nQuery: {:?}, Body: {:?}", req.method, req.route.query, req.body);
+            app::res::status(200).text(text)
         })
     ]);
 

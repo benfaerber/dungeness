@@ -51,7 +51,7 @@ impl Router {
     self.routes
     .iter()
     .find(|route| {
-      route.name == route_info.path && route.method == method
+      route.name == route_info.path && (route.method == method || route.method == HttpMethod::ANY)
     })
     .unwrap_or(&self.error_404)
   }
@@ -124,7 +124,6 @@ pub fn get(name: &str, handler: Handler) -> Route {
   route(HttpMethod::GET, name, handler)
 }
 
-// TODO: Add parser for request body
 pub fn post(name: &str, handler: Handler) -> Route {
   route(HttpMethod::POST, name, handler)
 }
@@ -135,4 +134,8 @@ pub fn put(name: &str, handler: Handler) -> Route {
 
 pub fn delete(name: &str, handler: Handler) -> Route {
   route(HttpMethod::DELETE, name, handler)
+}
+
+pub fn any(name: &str, handler: Handler) -> Route {
+  route(HttpMethod::ANY, name, handler)
 }
