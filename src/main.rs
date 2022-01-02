@@ -1,40 +1,42 @@
 use std::io::{Result};
-use std::net::{TcpListener, TcpStream, Shutdown};
 
-const PORT: i32 = 5050;
-
-mod response;
-mod request;
-
-fn handle_client(stream: &mut TcpStream) -> Result<()> {
-    let req = request::get_request(stream).unwrap();
-
-    let test_body = "Hello world!".to_string();
-
-    let res = response::Response {
-        status_code: 200,
-        content_type: response::ContentType::TextHtml,
-        content: test_body
-    };
-    res.send(stream)?;
-
-    stream.shutdown(Shutdown::Both)?;
-    Ok(())
-}
-
-fn listen_on(port: i32) -> Result<()> {
-    let address = format!("127.0.0.1:{}", port);
-    let listener = TcpListener::bind(address)?;
-    for stream in listener.incoming() {
-        handle_client(&mut stream?)?;
-    }
-    Ok(())
-}
+mod app;
 
 fn main() -> Result<()> {
-    println!("Dungeness");
-    println!("---------");
-    println!("Listening on http://localhost:{}", PORT);
+    let router = app::routes(vec![
+        app::get("index", |req: app::Request| {
+            app::response::status(200).text("This is the home page".to_string())
+        }),
+        app::get("test", |req: app::Request| {
+            let test_text = format!("Welcome to the test route!\nHere is some info about your request: {:?}", req);
+            let ok_res = app::response::status(200);
+            ok_res.text(test_text)
+        }),
+        app::get("emoji", |req: app::Request| {
+            // It works with UTF-8
+            let emojis = "😃 😂 😊 😍 😜 😎 ".to_string();
+            app::response::status(200).text(emojis)
+        }),
+        app::get("add", |req: app::Request| {
+            // It works with UTF-8
+            let zero = "0".to_string();
+            let get_int = |name: &str| -> i32 {
+                let val = req.get(name).unwrap_or(&zero);
+                val.parse::<i32>().unwrap_or(0)
+            };
 
-    listen_on(PORT)
+            let a = get_int("a");
+            let b = get_int("b");
+
+            let output = format!("{} + {} = {}", a, b, a + b);
+
+            app::response::status(200).text(output)
+        })
+    ]);
+
+    app::start(router)
 }
+
+// app::status(200)::text("Hello")
+// app::status(400)::json("Apple");
+// app::status(231)::html("HI!");

@@ -5,15 +5,15 @@ use std::str;
 #[path = "./request_parser.rs"]
 mod request_parser;
 
-type HttpMethod = request_parser::http_method::HttpMethod;
-type Request = request_parser::Request;
+pub type HttpMethod = request_parser::http_method::HttpMethod;
+pub type Request = request_parser::Request;
+pub type RouteInfo = request_parser::RouteInfo;
 
 const MAX_REQUEST_SIZE: usize = 1000;
 
 pub fn get_request(stream: &mut TcpStream) -> Result<Request> {
   let raw_request = get_raw_request(stream)?;
   let req: Request = request_parser::parse(raw_request);
-  println!("{:?}", req);
   Ok(req)
 }
 

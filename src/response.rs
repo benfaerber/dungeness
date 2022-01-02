@@ -1,6 +1,3 @@
-use std::io::{Result, Write};
-use std::net::{TcpStream};
-
 #[path = "./content_type.rs"]
 mod content_type;
 
@@ -23,17 +20,28 @@ impl Response {
     lines.join("\r\n")
   }
 
-  fn get_raw(&self) -> String {
+  pub fn get_raw(&self) -> String {
     let header = self.get_header();
     format!("{}\r\n\r\n{}", header, self.content)
   }
+}
 
-  pub fn send(&self, stream: &mut TcpStream) -> Result<()> {
-    let raw_response = self.get_raw();
-    let response_bytes = raw_response.as_bytes();
-    stream.write(response_bytes)?;
-    Ok(())
+pub struct ResponseStatus {
+  status_code: i32
+}
+
+impl ResponseStatus {
+  pub fn text(&self, content: String) -> Response {
+    Response {
+      status_code: self.status_code,
+      content: content,
+      content_type: ContentType::TextPlain
+    }
   }
+}
+
+pub fn status(status_code: i32) -> ResponseStatus {
+  ResponseStatus { status_code }
 }
 
 // TODO: Implement all these content types
