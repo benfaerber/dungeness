@@ -4,7 +4,7 @@ use std::fmt;
 #[derive(Debug)]
 pub enum ContentType {
   TextCss,
-  TextCsc,
+  TextCsv,
   TextHtml,
   TextJavascript,
   TextPlain,
@@ -70,13 +70,25 @@ impl ContentType {
   fn to_string(&self) -> String {
     match self {
       Self::TextCss => "text/css",
-      Self::TextCsc => "text/csv",
+      Self::TextCsv => "text/csv",
       Self::TextHtml => "text/html",
       Self::TextJavascript => "text/javascript",
       Self::TextPlain => "text/plain",
       Self::TextXml => "text/xml",
       _ => "text/plain",
     }.to_string()
+  }
+
+  fn from_str(s: &str) -> Self {
+    match s {
+      "text/css" => Self::TextCss,
+      "text/csv" => Self::TextCsv,
+      "text/html" => Self::TextHtml,
+      "text/javascript" => Self::TextJavascript,
+      "text/plain" => Self::TextPlain,
+      "text/xml" => Self::TextXml,
+      _ => Self::TextPlain
+    }
   }
 }
 
