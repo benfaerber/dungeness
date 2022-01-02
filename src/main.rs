@@ -2,41 +2,49 @@ use std::io::{Result};
 
 mod app;
 
+fn add_route(req: app::Request) -> app::Response {
+    let zero = "0".to_string();
+    let get_int = |name: &str| -> i32 {
+        let val = req.get(name).unwrap_or(&zero);
+        val.parse::<i32>().unwrap_or(0)
+    };
+
+    let a = get_int("a");
+    let b = get_int("b");
+
+    let output = format!("{} + {} = {}", a, b, a + b);
+
+    app::res::status(200).text(output)
+}
+
 fn main() -> Result<()> {
+    // A router is a vector of routes
     let router = app::routes(vec![
-        app::get("index", |req: app::Request| {
-            app::response::status(200).text("This is the home page".to_string())
+
+        // Methods have their own functions (get, post, put, etc.)
+        app::get("index", |req| {
+            let unknown = "Unknown".to_string();
+            let ua = req.headers.get("User-Agent").unwrap_or(&unknown);
+            let text = format!("This is the home page\nUser Agent: {}", ua);
+            app::res::status(200).text(text)
         }),
-        app::get("test", |req: app::Request| {
-            let test_text = format!("Welcome to the test route!\nHere is some info about your request: {:?}", req);
-            let ok_res = app::response::status(200);
+
+        // This is the verbose way
+        app::route(app::HttpMethod::GET, "test", |req: app::Request| -> app::Response {
+            let test_text = format!("Welcome to the test route!\nHere is some info about your request:\n{:?}", req);
+            let ok_res = app::res::status(200);
             ok_res.text(test_text)
         }),
-        app::get("emoji", |req: app::Request| {
+
+        app::get("emoji", |_| {
             // It works with UTF-8
-            let emojis = "😃 😂 😊 😍 😜 😎 ".to_string();
-            app::response::status(200).text(emojis)
+            let emojis = "<h1>These are my emojis</h1>\n 😃 😂 😊 😍 😜 😎 ".to_string();
+            app::res::status(200).html_body(emojis)
         }),
-        app::get("add", |req: app::Request| {
-            // It works with UTF-8
-            let zero = "0".to_string();
-            let get_int = |name: &str| -> i32 {
-                let val = req.get(name).unwrap_or(&zero);
-                val.parse::<i32>().unwrap_or(0)
-            };
 
-            let a = get_int("a");
-            let b = get_int("b");
-
-            let output = format!("{} + {} = {}", a, b, a + b);
-
-            app::response::status(200).text(output)
-        })
+        // External functions can be used
+        app::get("add", add_route)
     ]);
 
     app::start(router)
 }
-
-// app::status(200)::text("Hello")
-// app::status(400)::json("Apple");
-// app::status(231)::html("HI!");

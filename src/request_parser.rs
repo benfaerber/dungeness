@@ -9,7 +9,8 @@ pub mod http_method;
 pub struct Request {
   pub method: http_method::HttpMethod,
   pub route: RouteInfo,
-  pub headers: HashMap<String, String>
+  pub headers: HashMap<String, String>,
+  pub connection: HashMap<String, String>
 }
 
 impl Request {
@@ -107,7 +108,7 @@ fn parse_route(raw_route: String) -> RouteInfo {
   }
 }
 
-pub fn parse(raw_request: String) -> Request {
+pub fn parse(raw_request: String, connection: HashMap<String, String>) -> Request {
   let lines: Vec<&str> = raw_request.trim().split(HTTP_EOL).collect();
   let header_line = lines[0];
   let raw_params = &lines[1..];
@@ -119,6 +120,7 @@ pub fn parse(raw_request: String) -> Request {
   Request {
     method,
     route,
-    headers
+    headers,
+    connection
   }
 }

@@ -1,6 +1,7 @@
 use std::io::{Result, Read};
 use std::net::{TcpStream};
 use std::str;
+use std::collections::HashMap;
 
 #[path = "./request_parser.rs"]
 mod request_parser;
@@ -13,7 +14,11 @@ const MAX_REQUEST_SIZE: usize = 1000;
 
 pub fn get_request(stream: &mut TcpStream) -> Result<Request> {
   let raw_request = get_raw_request(stream)?;
-  let req: Request = request_parser::parse(raw_request);
+
+  let mut connection_data: HashMap<String, String> = HashMap::new();
+  let peer_addr = stream.peer_addr().unwrap().to_string();
+  connection_data.insert("Peer-Address".to_string(), peer_addr);
+  let req: Request = request_parser::parse(raw_request, connection_data);
   Ok(req)
 }
 
