@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum HttpMethod {
   GET,
   HEAD,

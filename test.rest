@@ -1,0 +1,16 @@
+POST http://localhost:5050/post-test HTTP/1.1
+content-type: application/plain
+
+horse radish
+
+
+###
+
+POST http://localhost:5050/add?a=1&b=4 HTTP/1.1
+content-type: application/plain
+
+1+50
+
+###
+
+GET http://localhost:5050/add?a=1&b=4

@@ -3,7 +3,7 @@ use std::net::{TcpListener, TcpStream, Shutdown};
 use chrono::offset::{Local};
 
 const PORT: i32 = 5050;
-const PRINT_REQUEST: bool = false;
+const PRINT_REQUEST: bool = true;
 const PRINT_RESPONSE: bool = false;
 const PRINT_SERVE: bool = true;
 
@@ -47,11 +47,11 @@ pub struct Router {
 }
 
 impl Router {
-  fn find(&self, route_info: &RouteInfo) -> &Route {
+  fn find(&self, route_info: &RouteInfo, method: HttpMethod) -> &Route {
     self.routes
     .iter()
     .find(|route| {
-      route.name == route_info.path
+      route.name == route_info.path && route.method == method
     })
     .unwrap_or(&self.error_404)
   }
@@ -69,7 +69,7 @@ fn serve(stream: &mut TcpStream, router: &Router) -> Result<()> {
 
   if PRINT_REQUEST { println!("{:?}\n", req) }
 
-  let route = router.find(&req.route);
+  let route = router.find(&req.route, req.method);
   let handler = route.handler;
 
   let con = &req.connection.clone();

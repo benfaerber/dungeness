@@ -43,7 +43,12 @@ fn main() -> Result<()> {
         }),
 
         // External functions can be used
-        app::get("add", add_route)
+        app::get("add", add_route),
+
+        app::post("post-test", |req| {
+            let res_text = format!("You sent this data using post: {:?}", req.body);
+            app::res::status(200).text(res_text)
+        })
     ]);
 
     app::start(router)

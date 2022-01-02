@@ -14,6 +14,7 @@ const MAX_REQUEST_SIZE: usize = 1000;
 
 pub fn get_request(stream: &mut TcpStream) -> Result<Request> {
   let raw_request = get_raw_request(stream)?;
+  println!("{:?}", raw_request);
 
   let mut connection_data: HashMap<String, String> = HashMap::new();
   let peer_addr = stream.peer_addr().unwrap().to_string();
