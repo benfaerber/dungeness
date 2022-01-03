@@ -28,3 +28,6 @@ content-type: application/plain
 horse radish
 
 ###
+
+
+### Query Parser: ([\w\d_-]+)(=)?(([\w\d_-]|(&(?:[\w\d_-]){1,5};)|([\w\d_-]+)))+
