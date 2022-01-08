@@ -107,6 +107,8 @@ fn listen_on(port: i32, router: Router) -> Result<()> {
   Ok(())
 }
 
+// * Public API
+
 pub fn start(router: Router) -> Result<()> {
   intro::display(constants::PORT);
   listen_on(constants::PORT, router)
