@@ -1,35 +1,42 @@
 #[path = "./content_type.rs"]
 mod content_type;
 
-pub type ContentType = content_type::ContentType;
+#[path = "./constants.rs"]
+mod constants;
 
-const HTTP_EOL: &str = "\r\n";
+pub type ContentType = content_type::ContentType;
 
 #[derive(Debug)]
 pub struct Response {
   pub status_code: i32,
   pub content_type: ContentType,
-  pub content: String
+  pub content: String,
 }
 
+// TODO: Add ability to pass custom response headers
 impl Response {
   fn get_header(&self) -> String {
     let lines: Vec<String> = vec![
       format!("HTTP/1.1 {} OK", self.status_code),
-      format!("Content-Type: {}; charset=utf-8", self.content_type)
+      format!("Content-Type: {}; charset=utf-8", self.content_type),
     ];
 
-    lines.join(HTTP_EOL)
+    lines.join(constants::HTTP_EOL)
   }
 
   pub fn get_raw(&self) -> String {
     let header = self.get_header();
-    format!("{}{}{}", header, HTTP_EOL.repeat(2), self.content)
+    format!(
+      "{}{}{}",
+      header,
+      constants::HTTP_EOL.repeat(2),
+      self.content
+    )
   }
 }
 
 pub struct ResponseStatus {
-  status_code: i32
+  status_code: i32,
 }
 
 impl ResponseStatus {
@@ -37,7 +44,7 @@ impl ResponseStatus {
     Response {
       status_code: self.status_code,
       content_type,
-      content
+      content,
     }
   }
 

@@ -63,7 +63,7 @@ pub enum ContentType {
   ApplicationVndOpenXmlFormatsOfficeDocumentPresentationmlPresentation,
   ApplicationMsWord,
   ApplicationVndOpenXmlFormatsOfficeDocumentWordProcessingmlDocument,
-  ApplicationVndMozillaAulXml
+  ApplicationVndMozillaAulXml,
 }
 
 impl ContentType {
@@ -76,7 +76,8 @@ impl ContentType {
       Self::TextPlain => "text/plain",
       Self::TextXml => "text/xml",
       _ => "text/plain",
-    }.to_string()
+    }
+    .to_string()
   }
 
   fn from_str(s: &str) -> Self {
@@ -87,7 +88,7 @@ impl ContentType {
       "text/javascript" => Self::TextJavascript,
       "text/plain" => Self::TextPlain,
       "text/xml" => Self::TextXml,
-      _ => Self::TextPlain
+      _ => Self::TextPlain,
     }
   }
 }

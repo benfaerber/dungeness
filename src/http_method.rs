@@ -11,7 +11,7 @@ pub enum HttpMethod {
   OPTIONS,
   TRACE,
   PATCH,
-  ANY
+  ANY,
 }
 
 impl HttpMethod {
@@ -26,8 +26,9 @@ impl HttpMethod {
       HttpMethod::OPTIONS => "OPTIONS",
       HttpMethod::TRACE => "TRACE",
       HttpMethod::PATCH => "PATCH",
-      HttpMethod::ANY => "ANY"
-    }.to_string()
+      HttpMethod::ANY => "ANY",
+    }
+    .to_string()
   }
 
   pub fn from_str(s: &str) -> Self {
@@ -42,7 +43,7 @@ impl HttpMethod {
       "TRACE" => HttpMethod::TRACE,
       "PATCH" => HttpMethod::PATCH,
       "ANY" => HttpMethod::ANY,
-      _ => HttpMethod::GET
+      _ => HttpMethod::GET,
     }
   }
 }
