@@ -1,6 +1,10 @@
+use std::collections::HashMap;
 use std::io::Result;
-
 mod app;
+
+fn res() -> app::Response {
+    app::res::response()
+}
 
 fn adder_route(req: app::Request) -> app::Response {
     let zero = "0".to_string();
@@ -14,7 +18,7 @@ fn adder_route(req: app::Request) -> app::Response {
 
     let output = format!("{} + {} = {}", a, b, a + b);
 
-    app::res::status(200).text(output)
+    res().status(200).text(output)
 }
 
 fn main() -> Result<()> {
@@ -25,7 +29,7 @@ fn main() -> Result<()> {
             let unknown = "Unknown".to_string();
             let ua = req.headers.get("User-Agent").unwrap_or(&unknown);
             let text = format!("This is the home page\nUser Agent: {}", ua);
-            app::res::status(200).text(text)
+            res().status(200).text(text)
         }),
         // This is the verbose way
         app::route(
@@ -36,36 +40,40 @@ fn main() -> Result<()> {
                     "Welcome to the test route!\nHere is some info about your request:\n{:?}",
                     req
                 );
-                let ok_res = app::res::status(200);
+                let ok_res = res().status(200);
                 ok_res.text(test_text)
             },
         ),
         app::get("emoji", |_| {
             // It works with UTF-8
             let emojis = "<h1>These are my emojis</h1>\n 😃 😂 😊 😍 😜 😎 ".to_string();
-            app::res::status(200).html_body(emojis)
+            res().status(200).html_body(emojis)
         }),
         // External functions can be used
         app::get("add", adder_route),
         app::post("post-test", |req| {
             let res_text = format!("You sent this data using post: {:?}", req.body);
-            app::res::status(200).text(res_text)
+
+            let mut headers: HashMap<String, String> = HashMap::new();
+            headers.insert("x-served-with".to_string(), "Dungeness".to_string());
+
+            res().status(200).text(res_text).headers(headers)
         }),
         app::any("any-test", |req| {
             let text = format!(
                 "You sent a request to 'any-test' using method {}.\nQuery: {:?}, Body: {:?}",
                 req.method, req.route.query, req.body
             );
-            app::res::status(200).text(text)
+
+            res().status(200).text(text)
         }),
         app::get("greet", |req| {
-            let failure = app::res::status(401);
-            let success = app::res::status(200);
-
             // Access the search parameter "name"
             match req.get("name") {
-                None => failure.text("You must add a name to use this route!".to_string()),
-                Some(name) => success.text(format!("Hello, {}!", name)),
+                None => res()
+                    .status(401)
+                    .text("You must add a name to use this route!".to_string()),
+                Some(name) => res().status(200).text(format!("Hello, {}!", name)),
             }
         }),
     ]);

@@ -1,7 +1,7 @@
 use std::fmt;
 
 #[allow(dead_code)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum ContentType {
   TextCss,
   TextCsv,

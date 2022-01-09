@@ -30,7 +30,7 @@ impl Route {
   fn get_404() -> Self {
     Self {
       name: "404".to_string(),
-      handler: |_| res::status(404).text("Error 404".to_string()),
+      handler: |_| res::response().status(404).text("Error 404".to_string()),
       method: request::HttpMethod::GET,
     }
   }
