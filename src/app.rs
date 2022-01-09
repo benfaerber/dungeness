@@ -121,7 +121,7 @@ pub fn routes(all_routes: Vec<Route>) -> Router {
   }
 }
 
-// * Route
+// * Route Factories
 pub fn route(method: HttpMethod, name: &str, handler: Handler) -> Route {
   Route {
     name: name.to_string(),
