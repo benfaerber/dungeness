@@ -31,3 +31,9 @@ horse radish
 
 
 ### Query Parser: ([\w\d_-]+)(=)?(([\w\d_-]|(&(?:[\w\d_-]){1,5};)|([\w\d_-]+)))+
+
+### GET
+http://localhost:5050/public/ferris
+
+###
+GET https://images.wagwalkingweb.com/media/articles/dog/why-i

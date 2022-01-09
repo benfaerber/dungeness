@@ -5,3 +5,4 @@ pub const PRINT_REQUEST: bool = false;
 pub const PRINT_RESPONSE: bool = false;
 pub const PRINT_SERVE: bool = true;
 pub const MAX_REQUEST_SIZE: usize = 1000;
+pub const PUBLIC_DIRECTORY: &str = "./public/";

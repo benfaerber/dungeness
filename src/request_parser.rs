@@ -31,6 +31,7 @@ pub struct RouteInfo {
 pub type Query = HashMap<String, String>;
 
 fn parse_header(raw_header: &str) -> (http_method::HttpMethod, String) {
+  println!("{}", raw_header);
   let parts: Vec<&str> = raw_header.split(" ").collect();
   let method_str = parts[0];
   let route = parts[1].to_string();

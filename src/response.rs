@@ -27,6 +27,15 @@ impl Response {
     }
   }
 
+  pub fn file(content_type: ContentType) -> Self {
+    Response {
+      content_type,
+      status_code: 200,
+      content: "".to_string(),
+      headers: HashMap::new(),
+    }
+  }
+
   pub fn status(&self, status_code: i32) -> Self {
     Response {
       status_code,
@@ -85,7 +94,7 @@ impl Response {
     self.modify_content(content_type, content)
   }
 
-  fn get_header(&self) -> String {
+  pub fn get_header(&self) -> String {
     let prefix = format!("HTTP/1.1 {} OK", self.status_code);
     let content_type = format!("Content-Type: {}; charset=utf-8", self.content_type);
 
@@ -96,7 +105,24 @@ impl Response {
       .collect::<Vec<String>>()
       .join(constants::HTTP_EOL);
 
-    vec![prefix, content_type, headers_list].join(constants::HTTP_EOL)
+    if headers_list.len() == 0 {
+      vec![prefix, content_type].join(constants::HTTP_EOL)
+    } else {
+      vec![prefix, content_type, headers_list].join(constants::HTTP_EOL)
+    }
+  }
+
+  pub fn prepend_header_bytes(&self, body_bytes: Vec<u8>) -> Vec<u8> {
+    let header = self.get_header();
+    let header_with_sep = format!("{}{}", header, constants::HTTP_EOL.repeat(2));
+    let raw_header: &[u8] = header_with_sep.as_bytes();
+    let raw_body: &[u8] = &body_bytes[..];
+
+    let mut raw_res = vec![];
+    raw_res.extend_from_slice(raw_header);
+    raw_res.extend_from_slice(raw_body);
+
+    raw_res
   }
 
   pub fn get_raw(&self) -> String {
@@ -106,6 +132,13 @@ impl Response {
       header,
       constants::HTTP_EOL.repeat(2),
       self.content
+    )
+  }
+
+  pub fn repr(&self) -> String {
+    format!(
+      "(Status: {}, Content Type: {})",
+      self.status_code, self.content_type
     )
   }
 }

@@ -21,7 +21,7 @@ fn adder_route(req: app::Request) -> app::Response {
     res().status(200).text(output)
 }
 
-fn main() -> Result<()> {
+fn server() -> Result<()> {
     // A router is a vector of routes
     let router = app::routes(vec![
         // Methods have their own functions (get, post, put, etc.)
@@ -79,4 +79,8 @@ fn main() -> Result<()> {
     ]);
 
     app::start(router)
+}
+
+fn main() -> Result<()> {
+    server()
 }

@@ -67,7 +67,7 @@ pub enum ContentType {
 }
 
 impl ContentType {
-  fn to_string(&self) -> String {
+  pub fn to_string(&self) -> String {
     match self {
       Self::TextCss => "text/css",
       Self::TextCsv => "text/csv",
@@ -147,7 +147,7 @@ impl ContentType {
     .to_string()
   }
 
-  fn from_str(s: &str) -> Self {
+  pub fn from_str(s: &str) -> Self {
     match s {
       "text/css" => Self::TextCss,
       "text/csv" => Self::TextCsv,
@@ -223,6 +223,21 @@ impl ContentType {
       }
       "application/vnd.mozilla.xul+xml" => Self::ApplicationVndMozillaAulXml,
       _ => Self::TextPlain,
+    }
+  }
+
+  pub fn from_filename(filename: &str) -> Self {
+    let chunks: Vec<&str> = filename.split(".").collect();
+    let ext = chunks[chunks.len() - 1];
+
+    match ext {
+      "gif" => Self::ImageGif,
+      "jpeg" | "jpg" => Self::ImageJpeg,
+      "png" => Self::ImagePng,
+      "tiff" => Self::ImageTiff,
+      "ico" => Self::ImageXIcon,
+      "svg" => Self::ImageSvgXml,
+      _ => Self::ImagePng,
     }
   }
 }

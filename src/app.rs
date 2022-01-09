@@ -2,6 +2,7 @@ use chrono::offset::Local;
 use std::collections::HashMap;
 use std::io::{Result, Write};
 use std::net::{Shutdown, TcpListener, TcpStream};
+use std::fmt;
 
 #[path = "./response.rs"]
 pub mod res;
@@ -10,6 +11,8 @@ pub mod res;
 mod constants;
 #[path = "./intro.rs"]
 mod intro;
+#[path = "./public.rs"]
+pub mod public;
 #[path = "./request.rs"]
 mod request;
 
@@ -34,6 +37,10 @@ impl Route {
       method: request::HttpMethod::GET,
     }
   }
+
+  fn repr(&self) -> String {
+    format!("{} {}", self.method, self.name)
+  }
 }
 
 pub struct Router {
@@ -53,32 +60,7 @@ impl Router {
   }
 }
 
-fn send_response(stream: &mut TcpStream, res: &Response) -> Result<()> {
-  let raw_response = res.get_raw();
-  let response_bytes = raw_response.as_bytes();
-  stream.write(response_bytes)?;
-  Ok(())
-}
-
-fn request_printer(route: &Route, res: &Response, con: &HashMap<String, String>) {
-  let timestamp = Local::now().format("%H:%M:%S");
-  let req_print = format!("{} {}", route.method, route.name);
-  let res_print = format!(
-    "(Status: {}, Content Type: {})",
-    res.status_code, res.content_type
-  );
-
-  let con_print = format!("(Peer Addr: {})", con.get("Peer-Address").unwrap());
-  println!("{} - {} {} {}", timestamp, req_print, res_print, con_print);
-}
-
-fn serve(stream: &mut TcpStream, router: &Router) -> Result<()> {
-  let req = request::get_request(stream)?;
-
-  if constants::PRINT_REQUEST {
-    println!("{:?}\n", req)
-  }
-
+fn serve_text_response(stream: &mut TcpStream, req: Request, router: &Router) -> Result<()> {
   let route = router.find(&req.route, req.method);
   let handler = route.handler;
 
@@ -86,12 +68,95 @@ fn serve(stream: &mut TcpStream, router: &Router) -> Result<()> {
   let res = handler(req);
   send_response(stream, &res)?;
 
+  print_serve(&route, &res, &con);
+
+  Ok(())
+}
+
+fn send_response(stream: &mut TcpStream, res: &Response) -> Result<()> {
+  let raw_response = res.get_raw();
+  let response_bytes = raw_response.as_bytes();
+  stream.write(response_bytes)?;
+  Ok(())
+}
+
+fn send_file_response(stream: &mut TcpStream, filename: &str, file: Vec<u8>) -> Result<()> {
+  let content_type = ContentType::from_filename(filename);
+  let res = Response::file(content_type);
+  print_file_serve(filename, &res);
+
+  let raw_res: Vec<u8> = res.prepend_header_bytes(file);
+  stream.write(&raw_res[..])?;
+  Ok(())
+}
+
+fn serve_file(stream: &mut TcpStream, req: Request) -> Result<()> {
+  let filename = req.route.path.as_str();
+
+  match public::get_file(filename) {
+    Ok(file) => {
+      send_file_response(stream, filename, file)?;
+      Ok(())
+    },
+    Err(_) => {
+      let error_404 = res::response()
+      .status(404)
+      .text(format!("Error 404: file \"{}\" does not exist!", filename));
+
+      print_file_error_404(&error_404);
+      send_response(stream, &error_404)?;
+      Ok(())
+    }
+  }
+}
+
+fn get_timestamp_repr() -> String {
+  Local::now().format("%H:%M:%S").to_string()
+}
+
+fn get_con_repr(con: &HashMap<String, String>) -> String {
+  format!("(Peer Addr: {})", con.get("Peer-Address").unwrap())
+}
+
+fn print_serve(route: &Route, res: &Response, con: &HashMap<String, String>) {
   if constants::PRINT_SERVE {
-    request_printer(&route, &res, &con);
+    println!("{} - {} {} {}", get_timestamp_repr(), route.repr(), res.repr(), get_con_repr(&con));
   }
 
   if constants::PRINT_RESPONSE {
     println!("{:?}\n", res)
+  }
+}
+
+fn print_file_error_404(res: &Response) {
+  if constants::PRINT_SERVE {
+    println!("{} - Public File Error 404 {}", get_timestamp_repr(), res.repr());
+  }
+}
+
+fn print_file_serve(filename: &str, res: &Response) {
+  if constants::PRINT_SERVE {
+    let req_print = format!("Public File {}", filename);
+    println!("{} - {} {}", get_timestamp_repr(), req_print, res.repr());
+  }
+}
+
+fn print_request(req: &Request) {
+  if constants::PRINT_REQUEST {
+    println!("{:?}\n", req)
+  }
+}
+
+fn serve(stream: &mut TcpStream, router: &Router) -> Result<()> {
+  let req = request::get_request(stream)?;
+
+  print_request(&req);
+
+  let is_public_file = req.route.paths[0] == "public";
+  if is_public_file {
+    serve_file(stream, req)?;
+  } else {
+    serve_text_response(stream, req, router)?;
   }
 
   stream.shutdown(Shutdown::Both)?;
