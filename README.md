@@ -94,12 +94,12 @@ fn main() -> Result<()> {
         // Normally, a request struct is passed into the route handler
         // In this case, we don't need this so it is replaced with an underscore
         app::get("index", |_| {
-            app::res::status(200).text("Welcome to Dungeness!".to_string())
+            app::res::response().status(200).text("Welcome to Dungeness!".to_string())
         }),
 
         app::get("greet", |req| {
-            let failure = app::res::status(401);
-            let success = app::res::status(200);
+            let failure = app::res::response().status(401);
+            let success = app::res::response().status(200);
 
             // Access the search parameter "name"
             match req.get("name") {
