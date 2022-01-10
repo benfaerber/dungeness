@@ -19,6 +19,13 @@ impl Request {
     pub fn get(&self, key: &str) -> Option<&String> {
         self.route.query.get(key)
     }
+
+    pub fn query_exists(&self, key: &str) -> bool {
+        match self.get(key) {
+            Some(t) => true,
+            None => false,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -31,7 +38,6 @@ pub struct RouteInfo {
 pub type Query = HashMap<String, String>;
 
 fn parse_header(raw_header: &str) -> (http_method::HttpMethod, String) {
-    println!("{}", raw_header);
     let parts: Vec<&str> = raw_header.split(" ").collect();
     let method_str = parts[0];
     let route = parts[1].to_string();

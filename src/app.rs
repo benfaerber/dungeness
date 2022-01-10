@@ -79,9 +79,13 @@ fn send_response(stream: &mut TcpStream, res: &Response) -> Result<()> {
     Ok(())
 }
 
-fn send_file_response(stream: &mut TcpStream, filename: &str, file: Vec<u8>) -> Result<()> {
-    let content_type = ContentType::from_filename(filename);
-    let res = Response::file(content_type);
+fn send_file_response(
+    stream: &mut TcpStream,
+    filename: &str,
+    file: Vec<u8>,
+    is_download: bool,
+) -> Result<()> {
+    let res = Response::file(filename, is_download);
     print_file_serve(filename, &res);
 
     let raw_res: Vec<u8> = res.prepend_header_bytes(file);
@@ -94,7 +98,12 @@ fn serve_file(stream: &mut TcpStream, req: Request) -> Result<()> {
 
     match public::get_file(filename) {
         Ok(file) => {
-            send_file_response(stream, filename, file)?;
+            let is_download = match req.get("download") {
+                Some(_) => true,
+                None => false,
+            };
+
+            send_file_response(stream, filename, file, is_download)?;
             Ok(())
         }
         Err(_) => {
@@ -110,7 +119,9 @@ fn serve_file(stream: &mut TcpStream, req: Request) -> Result<()> {
 }
 
 fn get_timestamp_repr() -> String {
-    Local::now().format("%H:%M:%S").to_string()
+    Local::now()
+        .format(constants::PRINT_DATE_FORMAT)
+        .to_string()
 }
 
 fn get_con_repr(con: &HashMap<String, String>) -> String {
