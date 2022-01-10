@@ -2,10 +2,6 @@ use std::collections::HashMap;
 use std::io::Result;
 mod app;
 
-fn res() -> app::Response {
-    app::res::response()
-}
-
 fn adder_route(req: app::Request) -> app::Response {
     let zero = "0".to_string();
     let get_int = |name: &str| -> i32 {
@@ -18,7 +14,7 @@ fn adder_route(req: app::Request) -> app::Response {
 
     let output = format!("{} + {} = {}", a, b, a + b);
 
-    res().status(200).text(output)
+    app::res().status(200).text(output)
 }
 
 fn server() -> Result<()> {
@@ -29,7 +25,7 @@ fn server() -> Result<()> {
             let unknown = "Unknown".to_string();
             let ua = req.headers.get("User-Agent").unwrap_or(&unknown);
             let text = format!("This is the home page\nUser Agent: {}", ua);
-            res().status(200).text(text)
+            app::res().status(200).text(text)
         }),
         // This is the verbose way
         app::route(
@@ -40,14 +36,14 @@ fn server() -> Result<()> {
                     "Welcome to the test route!\nHere is some info about your request:\n{:?}",
                     req
                 );
-                let ok_res = res().status(200);
+                let ok_res = app::res().status(200);
                 ok_res.text(test_text)
             },
         ),
         app::get("emoji", |_| {
             // It works with UTF-8
             let emojis = "<h1>These are my emojis</h1>\n 😃 😂 😊 😍 😜 😎 ".to_string();
-            res().status(200).html_body(emojis)
+            app::res().status(200).html_body(emojis)
         }),
         // External functions can be used
         app::get("add", adder_route),
@@ -57,7 +53,7 @@ fn server() -> Result<()> {
             let mut headers: HashMap<String, String> = HashMap::new();
             headers.insert("x-served-with".to_string(), "Dungeness".to_string());
 
-            res().status(200).text(res_text).headers(headers)
+            app::res().status(200).text(res_text).headers(headers)
         }),
         app::any("any-test", |req| {
             let text = format!(
@@ -65,15 +61,15 @@ fn server() -> Result<()> {
                 req.method, req.route.query, req.body
             );
 
-            res().status(200).text(text)
+            app::res().status(200).text(text)
         }),
         app::get("greet", |req| {
             // Access the search parameter "name"
             match req.get("name") {
-                None => res()
+                None => app::res()
                     .status(401)
                     .text("You must add a name to use this route!".to_string()),
-                Some(name) => res().status(200).text(format!("Hello, {}!", name)),
+                Some(name) => app::res().status(200).text(format!("Hello, {}!", name)),
             }
         }),
     ]);

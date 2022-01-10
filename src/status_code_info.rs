@@ -2,7 +2,7 @@ use std::fmt;
 
 // Generated from: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#information_responses
 
-enum StatusCode {
+pub enum StatusCode {
     // * Information: 100-199
     Continue100,
     SwitchingProtocols101,
@@ -164,7 +164,7 @@ impl StatusCode {
             Self::EarlyHints103 => "Early Hints",
 
             // * Success: 200-299
-            Self::Ok200 => "Ok",
+            Self::Ok200 => "OK",
             Self::Created201 => "Created",
             Self::Accepted202 => "Accepted",
             Self::NonAuthoritativeInformation203 => "Non Authoritative Information",
@@ -307,6 +307,7 @@ impl StatusCode {
             508 => Self::LoopDetected508,
             510 => Self::NotExtended510,
             511 => Self::NetworkAuthenticationRequired511,
+            _ => Self::NotFound404,
         }
     }
 }

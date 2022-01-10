@@ -7,6 +7,9 @@ mod content_type;
 #[path = "./constants.rs"]
 mod constants;
 
+#[path = "./status_code_info.rs"]
+mod status_code_info;
+
 pub type ContentType = content_type::ContentType;
 
 #[derive(Debug, Clone)]
@@ -114,7 +117,13 @@ impl Response {
     }
 
     pub fn get_header(&self, content_len: usize) -> String {
-        let prefix = format!("HTTP/{} {} OK", constants::HTTP_VERSION, self.status_code);
+        let status_info = status_code_info::StatusCode::from(self.status_code);
+        let prefix = format!(
+            "HTTP/{} {} {}",
+            constants::HTTP_VERSION,
+            self.status_code,
+            status_info.name()
+        );
 
         let mut extra_headers = HashMap::new();
 

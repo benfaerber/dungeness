@@ -231,13 +231,24 @@ impl ContentType {
         let ext = chunks[chunks.len() - 1];
 
         match ext {
+            // TODO: Add more common files
             "gif" => Self::ImageGif,
             "jpeg" | "jpg" => Self::ImageJpeg,
             "png" => Self::ImagePng,
             "tiff" => Self::ImageTiff,
             "ico" => Self::ImageXIcon,
             "svg" => Self::ImageSvgXml,
-            _ => Self::ImagePng,
+
+            "css" => Self::TextCss,
+            "csv" => Self::TextCsv,
+            "html" | "htm" | "php" => Self::TextHtml,
+            "xml" => Self::TextXml,
+
+            "json" => Self::ApplicationJson,
+            "js" => Self::ApplicationJavascript,
+            "pdf" => Self::ApplicationPdf,
+
+            _ => Self::TextPlain,
         }
     }
 }

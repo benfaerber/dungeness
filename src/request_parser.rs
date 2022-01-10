@@ -22,7 +22,7 @@ impl Request {
 
     pub fn query_exists(&self, key: &str) -> bool {
         match self.get(key) {
-            Some(t) => true,
+            Some(_) => true,
             None => false,
         }
     }

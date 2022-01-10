@@ -4,7 +4,7 @@ use std::io::{Result, Write};
 use std::net::{Shutdown, TcpListener, TcpStream};
 
 #[path = "./response.rs"]
-pub mod res;
+pub mod response;
 
 #[path = "./constants.rs"]
 mod constants;
@@ -15,8 +15,8 @@ pub mod public;
 #[path = "./request.rs"]
 mod request;
 
-pub type Response = res::Response;
-pub type ContentType = res::ContentType;
+pub type Response = response::Response;
+pub type ContentType = response::ContentType;
 pub type HttpMethod = request::HttpMethod;
 pub type Request = request::Request;
 pub type RouteInfo = request::RouteInfo;
@@ -32,7 +32,11 @@ impl Route {
     fn get_404() -> Self {
         Self {
             name: "404".to_string(),
-            handler: |_| res::response().status(404).text("Error 404".to_string()),
+            handler: |_| {
+                response::response()
+                    .status(404)
+                    .text("Error 404".to_string())
+            },
             method: request::HttpMethod::GET,
         }
     }
@@ -86,7 +90,7 @@ fn send_file_response(
     is_download: bool,
 ) -> Result<()> {
     let res = Response::file(filename, is_download);
-    print_file_serve(filename, &res);
+    print_file_serve(filename, is_download, &res);
 
     let raw_res: Vec<u8> = res.prepend_header_bytes(file);
     stream.write(&raw_res[..])?;
@@ -107,7 +111,7 @@ fn serve_file(stream: &mut TcpStream, req: Request) -> Result<()> {
             Ok(())
         }
         Err(_) => {
-            let error_404 = res::response()
+            let error_404 = response::response()
                 .status(404)
                 .text(format!("Error 404: file \"{}\" does not exist!", filename));
 
@@ -154,9 +158,10 @@ fn print_file_error_404(res: &Response) {
     }
 }
 
-fn print_file_serve(filename: &str, res: &Response) {
+fn print_file_serve(filename: &str, is_download: bool, res: &Response) {
     if constants::PRINT_SERVE {
-        let req_print = format!("Public File {}", filename);
+        let file_view = if is_download { "Downloaded" } else { "Viewed" };
+        let req_print = format!("Public File ({}) {}", file_view, filename);
         println!("{} - {} {}", get_timestamp_repr(), req_print, res.repr());
     }
 }
@@ -233,4 +238,8 @@ pub fn delete(name: &str, handler: Handler) -> Route {
 
 pub fn any(name: &str, handler: Handler) -> Route {
     route(HttpMethod::ANY, name, handler)
+}
+
+pub fn res() -> Response {
+    response::response()
 }
