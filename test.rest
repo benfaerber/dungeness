@@ -1,15 +1,16 @@
+###
+# Form
 POST http://localhost:5050/post-test HTTP/1.1
-content-type: application/plain
+content-type: multipart/form-data
 
-Horse radish
-
+query=dog&body=cat
 
 ###
 
-POST http://localhost:5050/add?a=1&b=4 HTTP/1.1
+POST http://localhost:5050/add HTTP/1.1
 content-type: application/plain
 
-1+50
+1+10
 
 ###
 
@@ -37,3 +38,6 @@ http://localhost:5050/public/ferris
 
 ###
 GET https://images.wagwalkingweb.com/media/articles/dog/why-i
+
+###
+http://localhost:5050/test?

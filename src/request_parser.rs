@@ -1,10 +1,15 @@
 use std::collections::HashMap;
 
+use crate::app::ContentType;
+
 #[path = "./constants.rs"]
 mod constants;
 
 #[path = "./http_method.rs"]
 pub mod http_method;
+
+#[path = "./content_type.rs"]
+pub mod content_type;
 
 #[derive(Debug, Clone)]
 pub struct Request {
@@ -12,7 +17,8 @@ pub struct Request {
     pub route: RouteInfo,
     pub headers: HashMap<String, String>,
     pub connection: HashMap<String, String>,
-    pub body: String,
+    pub form: HashMap<String, String>,
+    pub raw_body: String,
 }
 
 impl Request {
@@ -110,6 +116,24 @@ fn parse_route(raw_route: String) -> RouteInfo {
     RouteInfo { path, paths, query }
 }
 
+fn parse_form(headers: &HashMap<String, String>, body: &str) -> Query {
+    let content_type = headers
+        .get("content-type")
+        .unwrap_or(&"".to_string())
+        .to_owned()
+        .to_lowercase();
+
+    let multipart = ContentType::MultipartFormData.to_string();
+    let form_applicaiton = ContentType::ApplicationXWwwFormUrlencoded.to_string();
+    let is_form = content_type == multipart || content_type == form_applicaiton;
+
+    if is_form {
+        parse_query(body)
+    } else {
+        HashMap::new()
+    }
+}
+
 pub fn parse(raw_request: String, connection: HashMap<String, String>) -> Request {
     let body_sep = format!("{}", constants::HTTP_EOL.repeat(2));
     let req_parts: Vec<&str> = raw_request.trim().split(&body_sep).collect();
@@ -117,6 +141,8 @@ pub fn parse(raw_request: String, connection: HashMap<String, String>) -> Reques
 
     let req_head = req_parts[0];
     let req_body = if has_body { req_parts[1] } else { "" };
+
+    let raw_body = req_body.to_string();
 
     let lines: Vec<&str> = req_head.trim().split(constants::HTTP_EOL).collect();
     let header_line = lines[0];
@@ -126,11 +152,14 @@ pub fn parse(raw_request: String, connection: HashMap<String, String>) -> Reques
     let headers = parse_params(raw_params);
     let route = parse_route(raw_route);
 
+    let form = parse_form(&headers, req_body);
+
     Request {
         method,
         route,
         headers,
         connection,
-        body: req_body.to_string(),
+        form,
+        raw_body,
     }
 }

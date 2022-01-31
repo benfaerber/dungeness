@@ -7,6 +7,7 @@ pub const PORT: i32 = 5050;
 pub const PRINT_REQUEST: bool = false;
 pub const PRINT_RESPONSE: bool = false;
 pub const PRINT_SERVE: bool = true;
+pub const PRINT_ALL_ROUTES: bool = true;
 
 pub const MAX_REQUEST_SIZE: usize = 1000;
 

@@ -61,6 +61,24 @@ impl Router {
             })
             .unwrap_or(&self.error_404)
     }
+
+    fn display_all(&self) -> String {
+        let route_reprs: Vec<String> = self
+            .routes
+            .iter()
+            .map(|route| {
+                format!(
+                    "- http://localhost:{}/{} ({})",
+                    constants::PORT,
+                    route.name,
+                    route.method
+                )
+            })
+            .collect();
+        let router_repr = route_reprs.join("\n");
+
+        format!("Routes:\n{}", router_repr)
+    }
 }
 
 fn serve_text_response(stream: &mut TcpStream, req: Request, router: &Router) -> Result<()> {
@@ -201,6 +219,10 @@ fn listen_on(port: i32, router: Router) -> Result<()> {
 
 pub fn start(router: Router) -> Result<()> {
     intro::display(constants::PORT);
+    if constants::PRINT_ALL_ROUTES {
+        println!("{}", router.display_all());
+    }
+
     listen_on(constants::PORT, router)
 }
 
