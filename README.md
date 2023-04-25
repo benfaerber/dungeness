@@ -19,7 +19,7 @@ This allows you to add routes to your application in a functional way.
 
 ## Creating Routes
 
-All routes have a method, a name and a handler. The name is the path the route can be request on. A handler is a function with the following signature:
+All routes have a method, a name and a handler. The name is the path the route can be requested on. A handler is a function with the following signature:
 `fn(Request) -> Response`
 
 Routes can be created using the various route factories found in the `app` namespace.
