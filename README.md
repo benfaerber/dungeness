@@ -78,7 +78,7 @@ This works the same as the other route factories, the only difference is you are
 
 Here is a simple example:
 
-```
+```rust
 use std::io::{Result};
 mod app;
 
